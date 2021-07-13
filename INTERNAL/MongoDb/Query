@@ -1,0 +1,99 @@
+> db.Student.aggregate(
+...     [
+...         {
+...             $match: { Pass: false }
+...         },
+...         {
+...             $group: { _id: "$Name" }
+...         }
+...     ]
+... );
+{ "_id" : "Loki" }
+{ "_id" : "Neil" }
+{ "_id" : "Garuda" }
+{ "_id" : "Munna" }
+{ "_id" : "Jimin" }
+{ "_id" : "Sallu" }
+{ "_id" : "Prakash" }
+{ "_id" : "Modi" }
+{ "_id" : "Vijay" }
+
+
+> var mapper = function () {
+...     emit(this.USN, this.Subject2)
+... };
+> 
+> var reducer = function (USN, Subject2) {
+...     return Array.sum(Subject2)
+... };
+> 
+> db.Student.mapReduce(mapper, reducer, {
+...     out: "output"
+... });
+{
+	"result" : "output",
+	"timeMillis" : 115,
+	"counts" : {
+		"input" : 20,
+		"emit" : 20,
+		"reduce" : 0,
+		"output" : 20
+	},
+	"ok" : 1
+}
+> db.output.find();
+{ "_id" : 1, "value" : 30 }
+{ "_id" : 6, "value" : 65 }
+{ "_id" : 8, "value" : 36 }
+{ "_id" : 9, "value" : 78 }
+{ "_id" : 10, "value" : 50 }
+{ "_id" : 11, "value" : 33 }
+{ "_id" : 12, "value" : 35 }
+{ "_id" : 15, "value" : 40 }
+{ "_id" : 19, "value" : 45 }
+{ "_id" : 25, "value" : 32 }
+{ "_id" : 30, "value" : 42 }
+{ "_id" : 32, "value" : 70 }
+{ "_id" : 40, "value" : 60 }
+{ "_id" : 42, "value" : 90 }
+{ "_id" : 45, "value" : 80 }
+{ "_id" : 50, "value" : 50 }
+{ "_id" : 69, "value" : 55 }
+{ "_id" : 80, "value" : 87 }
+{ "_id" : 200, "value" : 41 }
+{ "_id" : 202, "value" : 95 }
+
+
+> db.Student.aggregate(
+...     [
+...         {
+...             $match: {
+...                 $and: [
+...                     { Subject1: { $gt: 44 } },
+...                     { Subject2: { $gt: 44 } }
+...                 ]
+...             }
+...         },
+...         {
+...             $count: "passed"
+...         }
+...     ]
+... );
+{ "passed" : 11 }
+
+> db.Student.find({USN:8});
+{ "_id" : ObjectId("60edb2b9a0cdfceb9ad8dc06"), "Name" : "Neil", "USN" : 8, "Subject1" : 21, "Subject2" : 36, "Subject3" : 40, "Pass" : false }
+> db.results.update(     {         USN: 8     },     {         $set: {            Subject1:89,            Subject2:11         }     } );
+WriteResult({ "nMatched" : 0, "nUpserted" : 0, "nModified" : 0 })
+> db.Student.find({USN:8});
+{ "_id" : ObjectId("60edb2b9a0cdfceb9ad8dc06"), "Name" : "Neil", "USN" : 8, "Subject1" : 21, "Subject2" : 36, "Subject3" : 40, "Pass" : false }
+
+
+
+> show collections;
+Student
+output
+> db.output.drop();
+true
+> show collections;
+Student
